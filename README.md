@@ -354,19 +354,13 @@ Detailed instructions: `docs/[your-os]/DEPLOYMENT.md`
 
 ---
 
-## License
-
-This project is provided as-is for educational and commercial use.
-
----
-
 ## Support
 
 For technical questions and issues:
-1. Check relevant documentation
-2. Review troubleshooting section
-3. Consult team members
-4. Create GitHub issue
+1. Ask AI first, try to fix problem by yourself.
+2. Ask/Call Maruf
+3. Ask/Call Tom
+4. Ask Roman 
 
 ---
 
