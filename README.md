@@ -388,9 +388,9 @@ For technical questions and issues:
 
 ## Project Contacts
 
-- Project Lead: [Your Name]
-- Frontend Team Lead: [Name]
-- Backend Team Lead: [Name]
+- Project Lead: Roman 
+- Frontend Team Lead: Maruf 
+- Backend Team Lead: Tom 
 
 ---
 
