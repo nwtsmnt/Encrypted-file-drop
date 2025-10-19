@@ -156,9 +156,6 @@ https://yoursite.com/download/FILE_ID#key=ENCRYPTION_KEY
 
 ## Getting Started
 
-### For Project Leads
-Read `START_HERE.md` for complete onboarding instructions.
-
 ### For Frontend Developers
 1. Read `docs/[your-os]/FRONTEND_SETUP.md`
 2. Follow installation steps
@@ -195,22 +192,9 @@ Read `START_HERE.md` for complete onboarding instructions.
 
 ## Development Workflow
 
-### Daily Standup (15 minutes)
-- What was completed yesterday
-- Today's objectives
-- Identified blockers
+### Week 1 (23.10.2025)
+-Complete setup enviroment steps on ur laptops (I will help u in class if u can't read or have any other disabilities :)
 
-### Weekly Integration Meeting (1 hour)
-- Progress demonstrations
-- Integration point discussion
-- Next week planning
-- Issue resolution
-
-### Version Control
-- Feature branches for new development
-- Pull requests for code review
-- Commit message conventions
-- Main branch protection
 
 ---
 
