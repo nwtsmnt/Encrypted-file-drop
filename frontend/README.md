@@ -1,6 +1,6 @@
-# Encrypt and Go — Frontend Demo
+# encrypt&Go — Frontend Demo
 
-A polished, client-side web interface for secure file encryption and decryption. Files are encrypted in the browser using AES-256-GCM, and keys never leave your device.
+A beautiful, client-side web interface for secure file encryption and decryption. Files are encrypted in the browser using AES-256-GCM, and keys never leave your device.
 
 ## Features
 
