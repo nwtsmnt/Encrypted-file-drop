@@ -54,6 +54,20 @@ body {
   position: relative;
 }
 
+/* Improve color consistency on mobile devices and opt out of forced color alterations */
+html {
+  color-scheme: dark light;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  -webkit-text-size-adjust: 100%;
+  forced-color-adjust: none;
+}
+
+/* Solid fallback background to avoid gradient color shifts on some phones */
+body {
+  background-color: #0a0a0f;
+}
+
 /* Animated Background */
 body::before {
   content: '';
@@ -1009,10 +1023,17 @@ body::before {
 /* Decrypt Section */
 .decrypt-inputs {
   margin-bottom: 3rem;
+  /* Make decrypt inputs follow the same centered card pattern as encrypt flow */
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1rem;
 }
 
 .input-group {
   margin-bottom: 2.5rem;
+  width: 100%;
+  max-width: 720px;
 }
 
 .input-group label {
@@ -1045,6 +1066,26 @@ body::before {
   resize: vertical;
   transition: var(--transition);
   line-height: 1.5;
+}
+
+/* Larger decrypt key input and consistent sizing for decrypt area */
+#dec-key-input {
+  width: 100%;
+  max-width: 720px;
+  padding: 1.2rem 1rem;
+  font-size: 1.05rem;
+  border-radius: var(--radius-md);
+  border: 2px solid rgba(255,255,255,0.12);
+  background: rgba(255,255,255,0.06);
+  color: var(--text-primary);
+  min-height: 56px;
+  transition: var(--transition);
+}
+
+#dec-key-input:focus {
+  outline: none;
+  border-color: var(--accent-primary);
+  box-shadow: var(--shadow-glow);
 }
 
 .input-group textarea:focus {
@@ -1171,86 +1212,100 @@ body::before {
   20%, 40%, 60%, 80% { transform: translateX(5px); }
 }
 
-/* Responsive Design */
+/* Responsive Design - quick polish (mobile/tablet) */
 @media (max-width: 768px) {
+  /* Reduce horizontal padding to fit smaller screens */
   .container {
-    padding: 1rem;
+    padding: 0.75rem;
   }
 
+  /* Make hero more compact */
   .hero {
-    padding: 4rem 0 2rem;
+    padding: 2rem 0 1rem;
+    /* Allow the subtitle to remain visible on smaller screens by disabling
+       the strict clipping that previously hid lower hero content */
+    max-height: none;
+    overflow: visible;
   }
 
+  /* Scale down logo/icon for tablet */
   .logo {
-    font-size: 3rem;
+    font-size: 2.2rem;
+    line-height: 1;
+  }
+
+  .logo-icon-small svg {
+    width: 72px;
+    height: 72px;
   }
 
   .tagline {
-    font-size: 1.4rem;
+    font-size: 1.1rem;
   }
 
   .subtitle {
-    font-size: 1rem;
+    font-size: 0.98rem;
+    /* increase contrast on smaller screens so the subtitle remains readable */
+    color: var(--text-secondary);
+    margin-bottom: 1.5rem;
+    max-width: 92%;
   }
 
   .nav-tabs {
     padding: 0.25rem;
-    margin-bottom: 2rem;
+    margin-bottom: 1.5rem;
   }
 
   .tab {
-    padding: 1rem 1.5rem;
-    font-size: 1rem;
+    padding: 0.75rem 1rem;
+    font-size: 0.95rem;
   }
 
+  /* Reduce card padding and make content fit vertically */
   .card {
-    padding: 2.5rem 2rem;
+    padding: 1.5rem 1rem;
   }
 
   .card-header h2 {
-    font-size: 2rem;
-  }
-
-  .steps {
-    gap: 2rem;
-    flex-direction: column;
-  }
-
-  .step::after {
-    display: none;
-  }
-
-  .drag-drop {
-    padding: 4rem 2rem;
-  }
-
-  .upload-icon {
-    width: 80px;
-    height: 80px;
-  }
-
-  .drag-drop h3 {
     font-size: 1.6rem;
   }
 
-  .btn-primary {
-    padding: 1.2rem 2rem;
-    font-size: 1.1rem;
+  /* Keep steps in a horizontal row on small screens to match desktop layout.
+     Allow wrapping if space is constrained. */
+  .steps {
+    gap: 1rem;
+    flex-direction: row;
+    flex-wrap: wrap;
+    justify-content: center;
   }
 
-  .result-panel {
-    padding: 2rem 1.5rem;
+  .step::after { display: none; }
+
+  /* Make drag-drop smaller so it doesn't dominate the viewport */
+  .drag-drop {
+    padding: 2rem 1rem;
   }
 
-  .envelope-actions {
-    flex-direction: column;
+  .upload-icon {
+    width: 56px;
+    height: 56px;
   }
 
-  .toast {
-    left: 1rem;
-    right: 1rem;
-    max-width: none;
+  .drag-drop h3 { font-size: 1.2rem; }
+
+  /* Buttons full-width on small screens for easier tapping */
+  .btn-primary, .btn-secondary, .btn-outline {
+    width: 100%;
+    padding: 1rem 1rem;
+    font-size: 1rem;
   }
+
+  .result-panel { padding: 1rem; }
+
+  .envelope-actions { flex-direction: column; gap: 0.5rem; }
+
+  /* Toast should not span entire screen by default but be visible */
+  .toast { left: 0.75rem; right: 0.75rem; max-width: none; }
 }
 
 @media (max-width: 480px) {
@@ -1284,6 +1339,18 @@ body::before {
     width: 100%;
     justify-content: center;
   }
+
+  /* Further reduce icon on small phones */
+  .logo-icon-small svg {
+    width: 48px;
+    height: 48px;
+  }
+
+  /* Ensure hero fits comfortably on small phones */
+  .hero { padding: 1.2rem 0; max-height: none; overflow: visible; }
+
+  .drag-drop { padding: 2rem 1rem; }
+  .upload-icon { width: 48px; height: 48px; }
 }
 
 /* Loading Animation */

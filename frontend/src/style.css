@@ -1,13 +1,22 @@
 :root {
+  /* Primary palette */
   --primary: #7c3aed;
   --secondary: #0ea5e9;
   --accent: #f59e0b;
-  --bg-gradient: linear-gradient(135deg, #0f172a 0%, #1e293b 50%, #334155 100%);
-  --glass-bg: rgba(255, 255, 255, 0.1);
-  --glass-border: rgba(255, 255, 255, 0.2);
+
+  /* Provide a solid fallback background color so browsers that render gradients or
+     filters differently still show consistent colors */
+  --bg-solid: #0f172a; /* deep navy */
+  --bg-gradient: linear-gradient(135deg, var(--bg-solid) 0%, #1e293b 50%, #334155 100%);
+
+  /* Glass / frosted panel colors - increase opacity slightly for more consistent
+     appearance across different GPUs / browsers */
+  --glass-bg: rgba(255, 255, 255, 0.12);
+  --glass-border: rgba(255, 255, 255, 0.18);
+
   --text-primary: #ffffff;
   --text-secondary: #cbd5e1;
-  --shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+  --shadow: 0 8px 32px rgba(0, 0, 0, 0.35);
 }
 
 * {
@@ -16,9 +25,22 @@
   box-sizing: border-box;
 }
 
+html {
+  /* make color intent explicit so UA forced-color / dark-mode heuristics behave
+     more consistently across devices */
+  color-scheme: dark;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
 body {
   font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-  background: var(--bg-gradient);
+  /* solid fallback first for devices that composite gradients differently */
+  background-color: var(--bg-solid);
+  background-image: var(--bg-gradient);
+  background-repeat: no-repeat;
+  background-attachment: fixed;
+  background-size: cover;
   color: var(--text-primary);
   min-height: 100vh;
   overflow-x: hidden;
@@ -33,9 +55,13 @@ body {
 .hero {
   text-align: center;
   padding: 1rem 2rem;
-  background: linear-gradient(135deg, rgba(124, 58, 237, 0.1) 0%, rgba(14, 165, 233, 0.1) 100%);
+  /* keep a subtle gradient but make it more opaque so colors stay consistent */
+  background-color: rgba(15, 23, 42, 0.85);
+  background-image: linear-gradient(135deg, rgba(124, 58, 237, 0.12) 0%, rgba(14, 165, 233, 0.12) 100%);
   border-bottom: 1px solid var(--glass-border);
-  backdrop-filter: blur(10px);
+  /* reduce blur intensity which often causes washed-out colors on some devices */
+  backdrop-filter: blur(6px);
+  -webkit-backdrop-filter: blur(6px);
   animation: fadeInUp 1s ease-out;
 }
 
@@ -108,7 +134,8 @@ body::before {
   cursor: pointer;
   transition: all 0.3s ease;
   box-shadow: var(--shadow);
-  backdrop-filter: blur(10px);
+  /* small blur on pill buttons is fine; keep low so rendering is stable */
+  backdrop-filter: blur(4px);
 }
 
 .cta-btn:hover {
@@ -136,11 +163,14 @@ main {
 
 .section {
   display: none;
-  background: var(--glass-bg);
-  border: 1px solid var(--glass-border);
+  background: rgba(255,255,255,0.06);
+  /* stronger border contrast so panels read clearly on different displays */
+  border: 1px solid rgba(255,255,255,0.08);
   border-radius: 20px;
   padding: 2rem;
-  backdrop-filter: blur(20px);
+  /* reduce blur to avoid washed-out content on some GPUs */
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
   box-shadow: var(--shadow);
   animation: fadeIn 0.5s ease-out;
 }
