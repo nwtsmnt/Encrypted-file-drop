@@ -1,0 +1,19 @@
+:root {
+  font-family: system-ui, Avenir, Helvetica, Arial, sans-serif;
+  line-height: 1.5;
+  font-weight: 400;
+
+  color-scheme: light dark;
+  :root{--bg:#0f1724;--card:#0f17242a;--accent:#7c3aed}
+  *{box-sizing:border-box;font-family:Inter,ui-sans-serif,system-ui,-apple-system,Segoe UI,Roboto,'Helvetica Neue',Arial}
+  body{margin:0;min-height:100vh;background:linear-gradient(135deg,#0ea5e9 0%,#7c3aed 100%);color:#0b1220}
+  .container{max-width:900px;margin:40px auto;padding:16px}
+  header h1{margin:0 0 6px;font-size:1.6rem;color:white}
+  .muted{color:#e6f6ff}
+  main{display:grid;grid-template-columns:1fr;gap:16px;margin-top:18px}
+  .card{background:rgba(255,255,255,0.06);padding:16px;border-radius:12px;backdrop-filter:blur(6px);color:#fff}
+  .row{display:flex;gap:8px;margin-top:8px}
+  input[type=file],input,textarea,button{font-size:0.95rem}
+  input,textarea{padding:8px;border-radius:8px;border:1px solid rgba(255,255,255,0.06);background:transparent;color:#fff;width:100%}
+  button{padding:8px 12px;border-radius:8px;border:none;background:var(--accent);color:white;cursor:pointer}
+  textarea{resize:vertical}
