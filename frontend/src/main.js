@@ -4,7 +4,6 @@ document.querySelector('#app').innerHTML = `
   <div class="app">
     <header class="hero">
       <div class="hero-title">
-        <span class="lock-icon">🔒</span>
         <h1>Encrypt & Go</h1>
       </div>
       <p>Secure your files with enterprise-grade encryption. Keys never leave your device.</p>
