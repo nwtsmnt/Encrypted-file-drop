@@ -11,7 +11,14 @@ function rndBytes(len: number) {
 }
 
 export function toBase64(bytes: Uint8Array) {
-  return btoa(String.fromCharCode(...bytes))
+  // Process in chunks to avoid "Maximum call stack size exceeded" error for large files
+  const chunkSize = 0x8000 // 32KB chunks
+  let binary = ''
+  for (let i = 0; i < bytes.length; i += chunkSize) {
+    const chunk = bytes.subarray(i, i + chunkSize)
+    binary += String.fromCharCode(...chunk)
+  }
+  return btoa(binary)
 }
 
 export function fromBase64(b64: string) {
