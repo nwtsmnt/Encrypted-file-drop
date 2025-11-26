@@ -179,6 +179,7 @@ function getUploadPageHTML() {
                 </svg>
               </button>
             </div>
+            <p id="key-strength-message" class="key-strength-message"></p>
             <button id="generate-key" class="btn-secondary">Generate Random Key</button>
           </div>
 
@@ -329,6 +330,34 @@ function initUploadPage() {
   const generateKey = el('generate-key') as HTMLButtonElement
   const encryptBtn = el('encrypt-btn') as HTMLButtonElement
   const copyLink = el('copy-link') as HTMLButtonElement
+  const keyInput = el('key-input') as HTMLInputElement
+  const keyStrengthMsg = document.getElementById('key-strength-message') as HTMLElement | null
+
+  const updateEncryptButtonState = () => {
+    const pass = keyInput.value.trim()
+    const hasFile = !!currentFile
+
+    if (!pass) {
+      // Require non-empty key
+      encryptBtn.disabled = true
+      if (keyStrengthMsg) {
+        keyStrengthMsg.textContent = ''
+        keyStrengthMsg.className = 'key-strength-message'
+      }
+      return
+    }
+
+    const strength = evaluatePassphraseStrength(pass)
+    if (keyStrengthMsg) {
+      keyStrengthMsg.textContent = strength.message
+      keyStrengthMsg.className = `key-strength-message ${strength.level}`
+    }
+
+    // Disallow very weak keys entirely
+    encryptBtn.disabled = !hasFile || strength.tooWeak
+  }
+
+  keyInput.addEventListener('input', updateEncryptButtonState)
 
   // Drag & drop
   dragDrop.addEventListener('click', () => fileInput.click())
@@ -343,12 +372,14 @@ function initUploadPage() {
     const files = e.dataTransfer?.files
     if (files && files.length > 0) {
       handleFileSelect(files[0])
+      updateEncryptButtonState()
     }
   })
   fileInput.addEventListener('change', (e) => {
     const files = (e.target as HTMLInputElement).files
     if (files && files.length > 0) {
       handleFileSelect(files[0])
+      updateEncryptButtonState()
     }
   })
 
@@ -365,14 +396,28 @@ function initUploadPage() {
 
   generateKey.addEventListener('click', () => {
     const key = crypto.generateRandomKeyBase64()
-    ;(el('key-input') as HTMLInputElement).value = key
+    keyInput.value = key
     showToast('Random key generated and copied to clipboard')
     navigator.clipboard.writeText(key)
     updateSteps(2)
+    updateEncryptButtonState()
   })
 
   encryptBtn.addEventListener('click', async () => {
     if (!currentFile || isEncrypting) return
+
+    const pass = keyInput.value.trim()
+    if (!pass) {
+      showToast('Please enter an encryption key or generate one before uploading.', true)
+      return
+    }
+
+    const strength = evaluatePassphraseStrength(pass)
+    if (strength.tooWeak) {
+      showToast('Encryption key is too weak. Please use at least 8 characters with a mix of letters, numbers, and symbols.', true)
+      return
+    }
+
     isEncrypting = true
     const btnText = encryptBtn.querySelector('.btn-text') as HTMLElement
     const btnLoader = encryptBtn.querySelector('.btn-loader') as HTMLElement
@@ -392,37 +437,29 @@ function initUploadPage() {
       const data = await ui.readFileAsUint8(currentFile)
       const salt = crypto.rndBytes(16)
       const iv = crypto.rndBytes(12)
-      const pass = (el('key-input') as HTMLInputElement).value.trim()
       let key: CryptoKey
       let encryptionKey: string
-      
-      if (pass === '') {
-        // Generate a random key and use the SAME key for both encryption and storage
-        encryptionKey = crypto.generateRandomKeyBase64()
-        const raw = crypto.fromBase64(encryptionKey)
-        key = await crypto.importRawKey(raw)
-      } else {
-        // Check if the input is a base64-encoded 32-byte key (from "Generate Random Key")
-        // or a regular passphrase
-        try {
-          const decoded = crypto.fromBase64(pass)
-          if (decoded.length === 32) {
-            // This is a base64-encoded 32-byte key (generated key)
-            console.log('Detected base64-encoded 32-byte key, using as raw key')
-            encryptionKey = pass
-            key = await crypto.importRawKey(decoded)
-          } else {
-            // Not a 32-byte key, treat as passphrase
-            console.log('Input is not a 32-byte key, treating as passphrase')
-            encryptionKey = pass
-            key = await crypto.deriveKeyFromPassphrase(pass, salt)
-          }
-        } catch (e) {
-          // Base64 decode failed, definitely a passphrase
-          console.log('Base64 decode failed, treating as passphrase')
+
+      // Check if the input is a base64-encoded 32-byte key (from "Generate Random Key")
+      // or a regular passphrase
+      try {
+        const decoded = crypto.fromBase64(pass)
+        if (decoded.length === 32) {
+          // This is a base64-encoded 32-byte key (generated key)
+          console.log('Detected base64-encoded 32-byte key, using as raw key')
+          encryptionKey = pass
+          key = await crypto.importRawKey(decoded)
+        } else {
+          // Not a 32-byte key, treat as passphrase
+          console.log('Input is not a 32-byte key, treating as passphrase')
           encryptionKey = pass
           key = await crypto.deriveKeyFromPassphrase(pass, salt)
         }
+      } catch (e) {
+        // Base64 decode failed, definitely a passphrase
+        console.log('Base64 decode failed, treating as passphrase')
+        encryptionKey = pass
+        key = await crypto.deriveKeyFromPassphrase(pass, salt)
       }
 
       progressFill.style.width = '40%'
@@ -887,8 +924,40 @@ function handleFileSelect(file: File) {
   fileName.textContent = file.name
   fileSize.textContent = ui.formatBytes(file.size)
   preview.style.display = 'block'
-  ;(el('encrypt-btn') as HTMLButtonElement).disabled = false
+  // Enable/disable encrypt button will be handled by key strength logic
   updateSteps(1)
+}
+
+function evaluatePassphraseStrength(pass: string) {
+  const length = pass.length
+  const hasLower = /[a-z]/.test(pass)
+  const hasUpper = /[A-Z]/.test(pass)
+  const hasDigit = /\d/.test(pass)
+  const hasSymbol = /[^A-Za-z0-9]/.test(pass)
+
+  const classes = [hasLower, hasUpper, hasDigit, hasSymbol].filter(Boolean).length
+
+  let level: 'weak' | 'medium' | 'strong' = 'weak'
+  let tooWeak = false
+  let message = ''
+
+  if (length === 0) {
+    return { level, tooWeak: true, message }
+  }
+
+  if (length < 8 || classes <= 1) {
+    level = 'weak'
+    tooWeak = true
+    message = 'Very weak key – use at least 8 characters with a mix of letters, numbers, and symbols.'
+  } else if (length < 12 || classes < 3) {
+    level = 'medium'
+    message = 'OK, but consider a longer key (12+ characters) with mixed character types.'
+  } else {
+    level = 'strong'
+    message = 'Strong key.'
+  }
+
+  return { level, tooWeak, message }
 }
 
 function updateSteps(activeStep: number) {
