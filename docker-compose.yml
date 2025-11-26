@@ -38,39 +38,36 @@ services:
       timeout: 20s
       retries: 3
 
-  # Backend API (uncomment when backend is ready)
-  # backend:
-  #   build: ./backend
-  #   container_name: encrypted-files-backend
-  #   environment:
-  #     NODE_ENV: production
-  #     PORT: 3000
-  #     DB_HOST: postgres
-  #     DB_PORT: 5432
-  #     DB_NAME: encrypted_files
-  #     DB_USER: postgres
-  #     DB_PASSWORD: postgres
-  #     MINIO_ENDPOINT: minio
-  #     MINIO_PORT: 9000
-  #     MINIO_ACCESS_KEY: minioadmin
-  #     MINIO_SECRET_KEY: minioadmin
-  #     MINIO_BUCKET: encrypted-files
-  #   ports:
-  #     - "3000:3000"
-  #   depends_on:
-  #     - postgres
-  #     - minio
+  # Backend API
+  backend:
+    build: ./backend
+    container_name: encrypted-files-backend
+    environment:
+      NODE_ENV: production
+      PORT: 3000
+      CORS_ORIGIN: ${CORS_ORIGIN:-http://localhost}
+      MAX_FILE_SIZE: 52428800
+      AWS_REGION: ${AWS_REGION:-us-east-1}
+      S3_BUCKET_NAME: ${S3_BUCKET_NAME}
+      AWS_ACCESS_KEY_ID: ${AWS_ACCESS_KEY_ID:-}
+      AWS_SECRET_ACCESS_KEY: ${AWS_SECRET_ACCESS_KEY:-}
+    ports:
+      - "3000:3000"
+    restart: unless-stopped
+    # Use IAM role if credentials not provided (for EC2 deployment)
 
-  # Frontend (uncomment when frontend is ready)
-  # frontend:
-  #   build: ./frontend
-  #   container_name: encrypted-files-frontend
-  #   environment:
-  #     VITE_API_URL: http://localhost:3000/api
-  #   ports:
-  #     - "80:80"
-  #   depends_on:
-  #     - backend
+  # Frontend
+  frontend:
+    build:
+      context: ./frontend
+      args:
+        VITE_API_URL: ${VITE_API_URL:-http://localhost:3000/api}
+    container_name: encrypted-files-frontend
+    ports:
+      - "80:80"
+    depends_on:
+      - backend
+    restart: unless-stopped
 
 volumes:
   postgres_data:
